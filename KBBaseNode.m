@@ -109,7 +109,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	NSString *indentation = [@"" stringByPaddingToLength:indentationDepth withString: @" " startingAtIndex:0];
 	NSString *indentation2 = [@"" stringByPaddingToLength:indentationDepth2 withString: @" " startingAtIndex:0];
 	
-	if (describableKeys == nil) {
+	if ([self describableKeys] == nil) {
 #if REMOVE_REDUNDANT_LEAF_KEY
 		NSMutableArray *newDescribableKeys = [[[self mutableKeys] mutableCopy] autorelease];
 		[newDescribableKeys removeObject:KBIsLeafKey];
@@ -119,7 +119,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 #endif
 	}
 	
-	for (NSString *key in describableKeys)
+	for (NSString *key in [self describableKeys])
 	{
 		
 		if ([key isEqualToString:KBChildrenKey])
