@@ -54,9 +54,8 @@
 
 - (BOOL)containsAnyObjectsIdenticalTo:(NSArray *)objects
 {
-	NSEnumerator *e = [objects objectEnumerator];
 	id obj;
-	while (obj = [e nextObject])
+	for (obj in objects)
 	{
 		if ([self containsObjectIdenticalTo:obj])
 			return YES;
@@ -67,10 +66,9 @@
 - (NSIndexSet *)indexesOfObjects:(NSArray *)objects
 {
 	NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-	NSEnumerator *enumerator = [objects objectEnumerator];
 	id obj = nil;
 	int index;
-	while (obj = [enumerator nextObject])
+	for (obj in objects)
 	{
 		index = [self indexOfObject:obj];
 		if (index != NSNotFound)
@@ -85,9 +83,8 @@
 
 - (void) insertObjectsFromArray:(NSArray *)array atIndex:(int)index
 {
-    NSEnumerator *enumerator = [array objectEnumerator];
 	id obj = nil;
-    while (obj = [enumerator nextObject])
+    for (obj in array)
         [self insertObject:obj atIndex:index++];
 }
 
