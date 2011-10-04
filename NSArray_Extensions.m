@@ -67,7 +67,7 @@
 {
 	NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
 	id obj = nil;
-	int index;
+	NSInteger index;
 	for (obj in objects)
 	{
 		index = [self indexOfObject:obj];
@@ -81,7 +81,7 @@
 
 @implementation NSMutableArray (KBExtensions)
 
-- (void) insertObjectsFromArray:(NSArray *)array atIndex:(int)index
+- (void) insertObjectsFromArray:(NSArray *)array atIndex:(NSInteger)index
 {
 	id obj = nil;
     for (obj in array)
