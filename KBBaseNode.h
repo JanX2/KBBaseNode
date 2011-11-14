@@ -26,11 +26,7 @@ extern NSString * const KBChildrenKey;
 	NSMutableDictionary *properties;
 	NSMutableArray *children;
 	BOOL isLeaf;
-	
-	NSArray *describableKeys;
 }
-
-@property (copy) NSArray *describableKeys;
 
 /* inits a leaf node (-init initialises a group node by default) */
 - (id)initLeaf;
@@ -66,6 +62,10 @@ extern NSString * const KBChildrenKey;
 /* Subclasses should override these methods to maintain support for archiving and copying */
 + (NSArray *)mutableKeys;
 - (NSArray *)mutableKeys;
+
+/* Subclasses should override these methods to get automatic support for -description */
++ (NSArray *)describableKeys;
+- (NSArray *)describableKeys;
 
 /* Methods for converting the node to a simple dictionary, for XML support (note that all
    instance variables must be property list types for the dictionary to be written out as XML, though) */

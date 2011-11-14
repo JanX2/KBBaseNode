@@ -12,8 +12,6 @@
 NSString * const KBChildrenKey = @"children";
 NSString * const KBIsLeafKey = @"isLeaf";
 
-NSArray * mutableKeysArray; // Class global cache for mutableKeys
-
 NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	NSString *descriptionString;
@@ -40,8 +38,6 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 }
 
 @implementation KBBaseNode
-
-@synthesize describableKeys;
 
 /*************************** Init/Dealloc ***************************/
 
@@ -108,16 +104,6 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	
 	NSString *indentation = [@"" stringByPaddingToLength:indentationDepth withString: @" " startingAtIndex:0];
 	NSString *indentation2 = [@"" stringByPaddingToLength:indentationDepth2 withString: @" " startingAtIndex:0];
-	
-	if ([self describableKeys] == nil) {
-#if REMOVE_REDUNDANT_LEAF_KEY
-		NSMutableArray *newDescribableKeys = [[[self mutableKeys] mutableCopy] autorelease];
-		[newDescribableKeys removeObject:KBIsLeafKey];
-		[self setDescribableKeys:newDescribableKeys];
-#else
-		[self setDescribableKeys:[self mutableKeys]];
-#endif
-	}
 	
 	for (NSString *key in [self describableKeys])
 	{
@@ -401,27 +387,45 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 #pragma mark -
 #pragma mark Archiving And Copying Support
 
-+ (void)initialize
++ (NSArray *)mutableKeys;
 {
-    if ( self == [KBBaseNode class] ) {
-		mutableKeysArray = [[NSArray alloc] initWithObjects:
+	static NSArray *mutableKeys = nil;
+	if (mutableKeys == nil) {
+		mutableKeys = [[NSArray alloc] initWithObjects:
 							@"title",
 							@"properties",
 							KBIsLeafKey,			// NOTE: isLeaf MUST come before children for initWithDictionary: to work properly!
 							KBChildrenKey, 
 							nil];
 	}
+	return mutableKeys;
 }
 
-+ (NSArray *)mutableKeys
+- (NSArray *)mutableKeys;
 {
-	return mutableKeysArray;
+	return [KBBaseNode mutableKeys];
 }
 
-- (NSArray *)mutableKeys
++ (NSArray *)describableKeys;
 {
-	return mutableKeysArray;
+	static NSArray *describableKeys = nil;
+	if (describableKeys == nil) {
+#if REMOVE_REDUNDANT_LEAF_KEY
+		NSMutableArray *describableKeys = [[[self mutableKeys] mutableCopy] autorelease];
+		[describableKeys removeObject:KBIsLeafKey];
+		describableKeys = [[NSArray alloc] initWithArray:describableKeys];
+#else
+		describableKeys = [[self mutableKeys] retain];
+#endif
+	}
+	return describableKeys;
 }
+
+- (NSArray *)describableKeys;
+{
+	return [KBBaseNode describableKeys];
+}
+
 
 - (id)initWithDictionary:(NSDictionary *)dictionary
 {
