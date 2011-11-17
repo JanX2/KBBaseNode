@@ -46,19 +46,24 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (id)init
 {
-	if (self = [super init])
+	self = [super init];
+	
+	if (self)
 	{
 		[self setTitle:@"Untitled"];
 		[self setProperties:[NSDictionary dictionary]];
 		[self setChildren:[NSMutableArray array]];
 		[self setLeaf:NO];							// Container by default
 	}
+	
 	return self;
 }
 
 - (id)initLeaf
 {
-	if (self = [self init])
+	self = [super init];
+	
+	if (self)
 	{
 		[self setLeaf:YES];
 	}
