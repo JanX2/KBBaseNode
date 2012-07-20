@@ -96,7 +96,7 @@ extern NSString * const KBChildrenKey;
 /* Returns YES if self is a descendent of any of the nodes in the given array */
 - (BOOL)isDescendantOfNodes:(NSArray*)nodes;
 
-/* Returns the index path of within the given array - useful for dragging and dropping */
+/* Returns the index path of self within the given array - useful for dragging and dropping */
 - (NSIndexPath *)indexPathInArray:(NSArray *)array;
 
 /*************************** Node Modification Convenience Methods ***************************/
