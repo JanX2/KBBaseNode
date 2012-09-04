@@ -104,11 +104,14 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	NSMutableString *nodeDescription = [[NSMutableString alloc] init];
 	
-	NSUInteger indentationDepth = (level+1) * 4;
-	NSUInteger indentationDepth2 = (level+2) * 4;
+	NSString *indentationString = @"    ";
+	NSUInteger indentationStringLength = indentationString.length;
 	
-	NSString *indentation = [@"" stringByPaddingToLength:indentationDepth withString: @" " startingAtIndex:0];
-	NSString *indentation2 = [@"" stringByPaddingToLength:indentationDepth2 withString: @" " startingAtIndex:0];
+	NSUInteger indentationDepth = (level+1) * indentationStringLength;
+	NSUInteger indentationDepth2 = (level+2) * indentationStringLength;
+	
+	NSString *indentation = [@"" stringByPaddingToLength:indentationDepth withString:indentationString startingAtIndex:0];
+	NSString *indentation2 = [@"" stringByPaddingToLength:indentationDepth2 withString:indentationString startingAtIndex:0];
 	
 	for (NSString *key in [self describableKeys])
 	{
