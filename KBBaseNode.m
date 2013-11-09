@@ -223,7 +223,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (id)parentFromArray:(NSArray *)array
 {
-	for (id node in array) {
+	for (KBBaseNode *node in array) {
 		if (node == self) {     // If we are in the root array, return nil
 			return nil;
 		}
@@ -232,7 +232,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 			return node;
 		}
 		
-		if (![node isLeaf]) {
+		if (node.isLeaf == NO) {
 			id innerNode = [self parentFromArray:[node children]];
 			if (innerNode) {
 				return innerNode;
@@ -247,13 +247,13 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 - (void)removeObjectFromChildren:(id)obj
 {
 	// Remove object from children or the children of any sub-nodes
-	for (id node in _children) {
+	for (KBBaseNode *node in _children) {
 		if (node == obj) {
 			[_children removeObjectIdenticalTo:obj];
 			return;
 		}
 		
-		if (![node isLeaf]) {
+		if (node.isLeaf == NO) {
 			[node removeObjectFromChildren:obj];
 		}
 	}
@@ -263,7 +263,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	NSMutableArray *descendants = [NSMutableArray array];
 	
-	for (id node in _children) {
+	for (KBBaseNode *node in _children) {
 		[descendants addObject:node];
 		
 		if (![node isLeaf]) {
@@ -279,7 +279,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	NSMutableArray *childLeafs = [NSMutableArray array];
 	
-	for (id node in _children) {
+	for (KBBaseNode *node in _children) {
 		if ([node isLeaf]) {
 			[childLeafs addObject:node];
 		}
@@ -307,7 +307,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 - (BOOL)isDescendantOfOrOneOfNodes:(NSArray *)nodes
 {
 	// Returns YES if we are contained anywhere inside the array passed in, including inside sub-nodes.
-	for (id node in nodes) {
+	for (KBBaseNode *node in nodes) {
 		if (node == self) {
 			return YES;  // Found ourself
 		}
@@ -326,12 +326,12 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 - (BOOL)isDescendantOfNodes:(NSArray *)nodes
 {
 	// Returns YES if any node in the array passed in is an ancestor of ours.
-	for (id node in nodes) {
+	for (KBBaseNode *node in nodes) {
 		// Note that the only difference between this and isAnywhereInsideChildrenOfNodes: is that we don't check
 		// to see if we are actually one of the items in the array passed in, only if we are one of their descendants.
 		
 		// Check sub-nodes.
-		if (![node isLeaf]) {
+		if (node.isLeaf == NO) {
 			if ([self isDescendantOfOrOneOfNodes:[node children]]) {
 				return YES;
 			}
