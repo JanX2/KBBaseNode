@@ -70,14 +70,6 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return self;
 }
 
-- (void)dealloc
-{
-	[title release];
-	[properties release];
-	[children release];
-	
-	[super dealloc];
-}
 
 
 - (NSString *)description
@@ -151,7 +143,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		}
 	}
 	
-	return [nodeDescription autorelease];
+	return nodeDescription;
 	
 }
 
@@ -162,42 +154,38 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (void)setTitle:(NSString *)newTitle
 {
-	[newTitle retain];
-	[title release];
 	title = newTitle;
 }
 
 - (NSString *)title
 {
-	return [[title retain] autorelease];
+	return title;
 }
 
 - (void)setProperties:(NSDictionary *)newProperties
 {
 	if (properties != newProperties)
     {
-        [properties autorelease];
         properties = [[NSMutableDictionary alloc] initWithDictionary:newProperties];
     }
 }
 
 - (NSMutableDictionary *)properties
 {
-	return [[properties retain] autorelease];
+	return properties;
 }
 
 - (void)setChildren:(NSArray *)newChildren
 {
 	if (children != newChildren)
     {
-        [children autorelease];
         children = [[NSMutableArray alloc] initWithArray:newChildren copyItems:YES];
     }
 }
 
 - (NSMutableArray *)children
 {
-	return [[children retain] autorelease];
+	return children;
 }
 
 - (void)setLeaf:(BOOL)flag
@@ -423,7 +411,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		[describableKeys removeObject:KBIsLeafKey];
 		describableKeys = [[NSArray alloc] initWithArray:describableKeys];
 #else
-		describableKeys = [[self mutableKeys] retain];
+		describableKeys = [self mutableKeys];
 #endif
 	}
 	return describableKeys;
@@ -454,7 +442,6 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 				{
 					id newNode = [[[self class] alloc] initWithDictionary:child];
 					[newChildren addObject:newNode];
-					[newNode release];
 				}
 				[self setChildren:newChildren];
 			}
