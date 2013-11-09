@@ -1,5 +1,5 @@
 /*
-	NSArray_Extensions.m
+	NSArray+KBExtensions.m
 	Copyright (c) 2001-2004, Apple Computer, Inc., all rights reserved.
 	Author: Chuck Pisula
 
@@ -42,7 +42,7 @@
  OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#import "NSArray_Extensions.h"
+#import "NSArray+KBExtensions.h"
 
 
 @implementation NSArray (KBExtensions)

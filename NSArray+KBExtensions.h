@@ -1,5 +1,5 @@
 //
-//  NSArray_Extensions.h
+//  NSArray+KBExtensions.h
 //
 //  Copyright (c) 2001-2002, Apple. All rights reserved.
 //

@@ -7,7 +7,7 @@
 //
 
 #import "KBBaseNode.h"
-#import "NSArray_Extensions.h"
+#import "NSArray+KBExtensions.h"
 
 NSString * const KBChildrenKey = @"children";
 NSString * const KBIsLeafKey = @"isLeaf";
