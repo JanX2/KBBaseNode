@@ -49,7 +49,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	if (self)
 	{
 		[self setTitle:@"Untitled"];
-		[self setProperties:[NSDictionary dictionary]];
+		[self setProperties:@{}];
 		[self setChildren:[NSMutableArray array]];
 		[self setLeaf:NO];							// Container by default
 	}
@@ -189,9 +189,9 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	isLeaf = flag;
 	if (isLeaf)
-		[self setChildren:[NSArray arrayWithObject:self]];
+		[self setChildren:@[self]];
 	else
-		[self setChildren:[NSArray array]];
+		[self setChildren:@[]];
 }
 
 - (BOOL)isLeaf
@@ -354,7 +354,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		if (index == NSNotFound)
 			return nil;
 		
-		[reverseIndexes addObject:[NSNumber numberWithUnsignedInteger:index]];
+		[reverseIndexes addObject:@(index)];
 		doc = parent;
 	}
 	
@@ -362,7 +362,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	index = [array indexOfObjectIdenticalTo:doc];
 	if (index == NSNotFound)
 		return nil;
-	[reverseIndexes addObject:[NSNumber numberWithUnsignedInteger:index]];
+	[reverseIndexes addObject:@(index)];
 	
 	// Now build the index path
 	for (NSNumber *indexNumber in [reverseIndexes reverseObjectEnumerator])
@@ -384,12 +384,10 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	static NSArray *mutableKeys = nil;
 	if (mutableKeys == nil) {
-		mutableKeys = [[NSArray alloc] initWithObjects:
-							@"title",
-							@"properties",
-							KBIsLeafKey,			// NOTE: isLeaf MUST come before children for initWithDictionary: to work properly!
-							KBChildrenKey, 
-							nil];
+		mutableKeys = @[@"title",
+						@"properties",
+						KBIsLeafKey,			// NOTE: isLeaf MUST come before children for initWithDictionary: to work properly!
+						KBChildrenKey];
 	}
 	return mutableKeys;
 }
@@ -428,12 +426,12 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	{
 		if ([key isEqualToString:KBChildrenKey])
 		{
-			if ([[dictionary objectForKey:KBIsLeafKey] boolValue])
-				[self setChildren:[NSArray arrayWithObject:self]];
+			if ([dictionary[KBIsLeafKey] boolValue])
+				[self setChildren:@[self]];
 			else
 			{
 				// Get recursive!
-				NSArray *dictChildren = [dictionary objectForKey:key];
+				NSArray *dictChildren = dictionary[key];
 				NSMutableArray *newChildren = [NSMutableArray array];
 				for (NSDictionary *child in dictChildren)
 				{
@@ -444,7 +442,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 			}
 		}
 		else
-			[self setValue:[dictionary objectForKey:key] forKey:key];
+			[self setValue:dictionary[key] forKey:key];
 	}
 	
 	return self;
@@ -468,11 +466,11 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 				{
 					[dictChildren addObject:[child dictionaryRepresentation]];
 				}
-				[dictionary setObject:dictChildren forKey:key];
+				dictionary[key] = dictChildren;
 			}
 		}
 		else if ([self valueForKey:key])
-			[dictionary setObject:[self valueForKey:key] forKey:key];
+			dictionary[key] = [self valueForKey:key];
 	}
 	
 	return dictionary;
@@ -549,13 +547,13 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	if (self.isLeaf)
 		return nil;
-	return [self.children objectAtIndex:index];
+	return (self.children)[index];
 }
 
 - (void)replaceObjectInChildrenAtIndex:(NSUInteger)index withObject:(id)object;
 {
 	if (self.isLeaf)
 		return;
-	[self.children replaceObjectAtIndex:index withObject:object];
+	(self.children)[index] = object;
 }
 @end
