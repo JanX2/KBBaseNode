@@ -275,7 +275,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	for (KBBaseNode *node in _children) {
 		[descendants addObject:node];
 		
-		if (![node isLeaf]) {
+		if (node.isLeaf == NO) {
 			[descendants addObjectsFromArray:[node descendants]];    // Recursive - will go down the chain to get all
 		}
 	}
@@ -374,6 +374,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	NSMutableArray *reverseIndexes = [NSMutableArray array];
 	id parent, doc = self;
 	NSUInteger index;
+	
 	while ((parent = [doc parentFromArray:array])) {
 		index = [[parent children] indexOfObjectIdenticalTo:doc];
 		if (index == NSNotFound) {
@@ -457,25 +458,28 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	self = [self init];
 	
-	for (NSString *key in [self mutableKeys]) {
-		if ([key isEqualToString:KBChildrenKey]) {
-			if ([dictionary[KBIsLeafKey] boolValue]) {
-				[self setChildren:@[self]];
+	if (self) {
+		for (NSString *key in [self mutableKeys]) {
+			if ([key isEqualToString:KBChildrenKey]) {
+				if ([dictionary[KBIsLeafKey] boolValue]) {
+					[self setChildren:@[self]];
+				}
+				else {
+					// Get recursive!
+					NSArray *dictChildren = dictionary[key];
+					NSMutableArray *newChildren = [NSMutableArray array];
+					
+					for (NSDictionary *childDict in dictChildren) {
+						id newNode = [[[self class] alloc] initWithDictionary:childDict];
+						[newChildren addObject:newNode];
+					}
+					
+					[self setChildren:newChildren];
+				}
 			}
 			else {
-				// Get recursive!
-				NSArray *dictChildren = dictionary[key];
-				NSMutableArray *newChildren = [NSMutableArray array];
-				for (NSDictionary *child in dictChildren) {
-					id newNode = [[[self class] alloc] initWithDictionary:child];
-					[newChildren addObject:newNode];
-				}
-				
-				[self setChildren:newChildren];
+				[self setValue:dictionary[key] forKey:key];
 			}
-		}
-		else {
-			[self setValue:dictionary[key] forKey:key];
 		}
 	}
 	
@@ -491,7 +495,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		if ([key isEqualToString:KBChildrenKey]) {
 			if (!_isLeaf) {
 				NSMutableArray *dictChildren = [NSMutableArray array];
-				for (id child in _children) {
+				for (KBBaseNode *child in _children) {
 					[dictChildren addObject:[child dictionaryRepresentation]];
 				}
 				
@@ -510,8 +514,10 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	self = [self init];    // Make sure all the instance variables are initialised.
 	
-	for (NSString *key in [self mutableKeys]) {
-		[self setValue:[coder decodeObjectForKey:key] forKey:key];
+	if (self) {
+		for (NSString *key in [self mutableKeys]) {
+			[self setValue:[coder decodeObjectForKey:key] forKey:key];
+		}
 	}
 	
 	return self;
