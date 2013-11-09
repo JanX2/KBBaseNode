@@ -21,12 +21,6 @@
 extern NSString * const KBChildrenKey;
 
 @interface KBBaseNode : NSObject <NSCoding, NSCopying>
-{
-	NSString *title;
-	NSMutableDictionary *properties;
-	NSMutableArray *children;
-	BOOL isLeaf;
-}
 
 /* inits a leaf node (-init initialises a group node by default) */
 - (id)initLeaf;
@@ -36,18 +30,12 @@ extern NSString * const KBChildrenKey;
 - (NSString *)descriptionWithLocale:(id)locale indent:(NSUInteger)level;
 - (NSString *)descriptionWithLocale:(id)locale indent:(NSUInteger)level describeChildren:(BOOL)describeChildren;
 
-/*************************** Accessors ***************************/
+/*************************** Properties ***************************/
 
-- (void)setTitle:(NSString *)newTitle;
-- (NSString *)title;
-- (void)setProperties:(NSDictionary *)newProperties;
-- (NSMutableDictionary *)properties;
-
-- (void)setChildren:(NSArray *)newChildren;
-- (NSMutableArray *)children;
-
-- (void)setLeaf:(BOOL)flag;
-- (BOOL)isLeaf;
+@property (strong) NSString *title;
+@property (strong) NSDictionary *properties;
+@property (strong) NSArray *children;
+@property (assign) BOOL isLeaf;
 
 /*************************** Utility Methods ***************************/
 

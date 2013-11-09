@@ -43,7 +43,13 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	}
 }
 
-@implementation KBBaseNode
+@implementation KBBaseNode {
+	NSMutableDictionary *_properties;
+	NSMutableArray *_children;
+	BOOL _isLeaf;
+}
+
+@dynamic properties, children, isLeaf;
 
 #pragma mark -
 #pragma mark Object Lifecycle
@@ -64,7 +70,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (id)initLeaf
 {
-	self = [super init];
+	self = [self init];
 	
 	if (self) {
 		[self setLeaf:YES];
@@ -110,11 +116,11 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	
 	for (NSString *key in [self describableKeys]) {
 		if ([key isEqualToString:KBChildrenKey]) {
-			if (describeChildren && !isLeaf) {
+			if (describeChildren && !_isLeaf) {
 				[nodeDescription appendFormat:@"%@%@ = (\n", indentation, KBChildrenKey];
-				id lastChild = [self.children lastObject];
+				id lastChild = [_children lastObject];
 				
-				for (id child in self.children) {
+				for (id child in _children) {
 					[nodeDescription appendFormat:
 					 @"%1$@{\n%2$@\n%1$@}%3$@\n",
 					 indentation2,
@@ -150,44 +156,34 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 #pragma mark -
 #pragma mark Accessors
 
-- (void)setTitle:(NSString *)newTitle
-{
-	title = newTitle;
-}
-
-- (NSString *)title
-{
-	return title;
-}
-
 - (void)setProperties:(NSDictionary *)newProperties
 {
-	if (properties != newProperties) {
-		properties = [[NSMutableDictionary alloc] initWithDictionary:newProperties];
+	if (_properties != newProperties) {
+		_properties = [newProperties mutableCopy];
 	}
 }
 
 - (NSMutableDictionary *)properties
 {
-	return properties;
+	return _properties;
 }
 
 - (void)setChildren:(NSArray *)newChildren
 {
-	if (children != newChildren) {
-		children = [[NSMutableArray alloc] initWithArray:newChildren copyItems:YES];
+	if (_children != newChildren) {
+		_children = [[NSMutableArray alloc] initWithArray:newChildren copyItems:YES];
 	}
 }
 
 - (NSMutableArray *)children
 {
-	return children;
+	return _children;
 }
 
 - (void)setLeaf:(BOOL)flag
 {
-	isLeaf = flag;
-	if (isLeaf) {
+	_isLeaf = flag;
+	if (_isLeaf) {
 		[self setChildren:@[self]];
 	}
 	else {
@@ -197,7 +193,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (BOOL)isLeaf
 {
-	return isLeaf;
+	return _isLeaf;
 }
 
 
@@ -214,11 +210,11 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (NSUInteger)countOfChildren;
 {
-	if (self.isLeaf) {
+	if (_isLeaf) {
 		return 0;
 	}
 	
-	return [self.children count];
+	return _children.count;
 }
 
 
@@ -251,9 +247,9 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 - (void)removeObjectFromChildren:(id)obj
 {
 	// Remove object from children or the children of any sub-nodes
-	for (id node in children) {
+	for (id node in _children) {
 		if (node == obj) {
-			[children removeObjectIdenticalTo:obj];
+			[_children removeObjectIdenticalTo:obj];
 			return;
 		}
 		
@@ -267,7 +263,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	NSMutableArray *descendants = [NSMutableArray array];
 	
-	for (id node in children) {
+	for (id node in _children) {
 		[descendants addObject:node];
 		
 		if (![node isLeaf]) {
@@ -283,7 +279,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	NSMutableArray *childLeafs = [NSMutableArray array];
 	
-	for (id node in children) {
+	for (id node in _children) {
 		if ([node isLeaf]) {
 			[childLeafs addObject:node];
 		}
@@ -299,7 +295,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	NSMutableArray *groupChildren = [NSMutableArray array];
 	
-	for (KBBaseNode *child in children) {
+	for (KBBaseNode *child in _children) {
 		if (![child isLeaf]) {
 			[groupChildren addObject:child];
 		}
@@ -460,14 +456,13 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 	
-	
 	for (NSString *key in [self mutableKeys]) {
 		// Convert all children to dictionaries too (note that we don't bother to look
 		// at the children for leaf nodes, which should just hold a reference to self).
 		if ([key isEqualToString:KBChildrenKey]) {
-			if (!isLeaf) {
+			if (!_isLeaf) {
 				NSMutableArray *dictChildren = [NSMutableArray array];
-				for (id child in children) {
+				for (id child in _children) {
 					[dictChildren addObject:[child dictionaryRepresentation]];
 				}
 				
@@ -515,7 +510,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 - (void)setNilValueForKey:(NSString *)key
 {
 	if ([key isEqualToString:KBIsLeafKey]) {
-		isLeaf = NO;
+		_isLeaf = NO;
 	}
 	else {
 		[super setNilValueForKey:key];
@@ -528,46 +523,46 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (void)addObject:(id)object;
 {
-	if (self.isLeaf) {
+	if (_isLeaf) {
 		return;
 	}
 	
-	[self.children addObject:object];
+	[_children addObject:object];
 }
 
 - (void)insertObject:(id)object inChildrenAtIndex:(NSUInteger)index;
 {
-	if (self.isLeaf) {
+	if (_isLeaf) {
 		return;
 	}
 	
-	[self.children insertObject:object atIndex:index];
+	[_children insertObject:object atIndex:index];
 }
 
 - (void)removeObjectFromChildrenAtIndex:(NSUInteger)index;
 {
-	if (self.isLeaf) {
+	if (_isLeaf) {
 		return;
 	}
 	
-	[self.children removeObjectAtIndex:index];
+	[_children removeObjectAtIndex:index];
 }
 
 - (id)objectInChildrenAtIndex:(NSUInteger)index;
 {
-	if (self.isLeaf) {
+	if (_isLeaf) {
 		return nil;
 	}
 	
-	return (self.children)[index];
+	return (_children)[index];
 }
 
 - (void)replaceObjectInChildrenAtIndex:(NSUInteger)index withObject:(id)object;
 {
-	if (self.isLeaf) {
+	if (_isLeaf) {
 		return;
 	}
 	
-	(self.children)[index] = object;
+	(_children)[index] = object;
 }
 @end
