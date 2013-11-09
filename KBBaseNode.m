@@ -296,7 +296,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	NSMutableArray *groupChildren = [NSMutableArray array];
 	
 	for (KBBaseNode *child in _children) {
-		if (![child isLeaf]) {
+		if (child.isLeaf == NO) {
 			[groupChildren addObject:child];
 		}
 	}
