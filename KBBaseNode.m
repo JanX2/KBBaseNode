@@ -39,10 +39,8 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 @implementation KBBaseNode
 
-/*************************** Init/Dealloc ***************************/
-
 #pragma mark -
-#pragma mark Init/Dealloc
+#pragma mark Object Lifecycle
 
 - (id)init
 {
@@ -147,7 +145,6 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	
 }
 
-/*************************** Accessors ***************************/
 
 #pragma mark -
 #pragma mark Accessors
@@ -202,7 +199,9 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return isLeaf;
 }
 
-/*************************** Utility Methods ***************************/
+
+#pragma mark -
+#pragma mark Utility Methods
 
 /* For sorting */
 - (NSComparisonResult)compare:(KBBaseNode *)aNode
@@ -218,7 +217,6 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return [self.children count];
 }
 
-/*************************** Drag'n'Drop Convenience Methods ***************************/
 
 #pragma mark -
 #pragma mark Drag'n'Drop Convenience Methods
@@ -378,10 +376,9 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return indexPath;
 }
 
-/*************************** Archiving and Copying Support ***************************/
 
 #pragma mark -
-#pragma mark Archiving And Copying Support
+#pragma mark Archiving and Copying Support
 
 + (NSArray *)mutableKeys;
 {
@@ -523,7 +520,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		[super setNilValueForKey:key];
 }
 
-/*************************** Node Modification Convenience Methods ***************************/
+
 #pragma mark -
 #pragma mark Node Modification Convenience Methods
 
