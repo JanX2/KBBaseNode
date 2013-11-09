@@ -206,7 +206,8 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 - (NSComparisonResult)compare:(KBBaseNode *)aNode
 {
 	// Just return the result of comparing the titles
-	return [[[self title] lowercaseString] compare:[[aNode title] lowercaseString]];
+	return [self.title compare:aNode.title
+					   options:NSCaseInsensitiveSearch];
 }
 
 - (NSUInteger)countOfChildren;
