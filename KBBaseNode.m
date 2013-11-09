@@ -105,25 +105,27 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	
 	for (NSString *key in [self describableKeys])
 	{
-		
 		if ([key isEqualToString:KBChildrenKey])
 		{
 			if (describeChildren && !isLeaf)
 			{
 				[nodeDescription appendFormat:@"%@%@ = (\n", indentation, KBChildrenKey];
 				id lastChild = [self.children lastObject];
-				for (id child in self.children) {
+				
+				for (id child in self.children)
+				{
 					[nodeDescription appendFormat:
 					 @"%1$@{\n%2$@\n%1$@}%3$@\n", 
 					 indentation2, 
 					 KBDescriptionForObject(child, nil, level+2),
 					 (child == lastChild) ? @"" : @"," ];
 				}
+				
 				[nodeDescription appendFormat:@"%@)\n", indentation];
 			}
 		}
-		else if ([self valueForKey:key]) {
-			
+		else if ([self valueForKey:key])
+		{
 			NSString *thisDescription = KBDescriptionForObject([self valueForKey:key], nil, level+1);
 			
 			BOOL isSingleLine;
@@ -249,7 +251,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	// Remove object from children or the children of any sub-nodes
 	for (id node in children)
 	{
-		if(node == obj)
+		if (node == obj)
 		{
 			[children removeObjectIdenticalTo:obj];
 			return;
@@ -331,7 +333,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		// Note that the only difference between this and isAnywhereInsideChildrenOfNodes: is that we don't check
 		// to see if we are actually one of the items in the array passed in, only if we are one of their descendants.
 		
-		// Check sub-nodes
+		// Check sub-nodes.
 		if (![node isLeaf])
 		{
 			if ([self isDescendantOfOrOneOfNodes:[node children]])
@@ -339,7 +341,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		}
     }
 	
-	// Didn't find self inside any of the nodes passed in
+	// Didn't find self inside any of the nodes passed in.
 	return NO;
 	
 }
@@ -445,6 +447,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 					id newNode = [[[self class] alloc] initWithDictionary:child];
 					[newChildren addObject:newNode];
 				}
+				
 				[self setChildren:newChildren];
 			}
 		}
