@@ -3,7 +3,7 @@
 //  --------
 //
 //  Keith Blount 2005
-//  Jan Weiß 2010-2011
+//  Jan Weiß 2010-2013
 //
 
 #import "KBBaseNode.h"
@@ -200,10 +200,11 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 #pragma mark -
 #pragma mark Utility Methods
 
-/* For sorting */
+/**
+ * For sorting.
+ */
 - (NSComparisonResult)compare:(KBBaseNode *)aNode
 {
-	// Just return the result of comparing the titles
 	return [self.title compare:aNode.title
 					   options:NSCaseInsensitiveSearch];
 }
@@ -229,10 +230,12 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		}
 		
 		if ([[node children] containsObjectIdenticalTo:self]) {
+			// node is the parent of self.
 			return node;
 		}
 		
 		if (node.isLeaf == NO) {
+			// Go deeper.
 			id innerNode = [self parentFromArray:[node children]];
 			if (innerNode) {
 				return innerNode;
@@ -243,7 +246,10 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return nil;
 }
 
-// Convenient recursive method
+/**
+ * Recursive method which searches children and children of all sub-nodes
+ * to remove the given object.
+ */
 - (void)removeObjectFromChildren:(id)obj
 {
 	// Remove object from children or the children of any sub-nodes
@@ -259,6 +265,9 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	}
 }
 
+/**
+ * Generates an array of all descendants.
+ */
 - (NSArray *)descendants
 {
 	NSMutableArray *descendants = [NSMutableArray array];
@@ -274,13 +283,16 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return descendants;
 }
 
-// This method is useful for generating a list of leaf-only nodes
+/**
+ * Generates an array of all leafs in children and children of all sub-nodes.
+ * Useful for generating a list of leaf-only nodes.
+ */
 - (NSArray *)allChildLeafs
 {
 	NSMutableArray *childLeafs = [NSMutableArray array];
 	
 	for (KBBaseNode *node in _children) {
-		if ([node isLeaf]) {
+		if (node.isLeaf) {
 			[childLeafs addObject:node];
 		}
 		else {
@@ -291,6 +303,9 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return childLeafs;
 }
 
+/**
+ * Returns only the children that are group nodes.
+ */
 - (NSArray *)groupChildren
 {
 	NSMutableArray *groupChildren = [NSMutableArray array];
@@ -304,14 +319,19 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return groupChildren;
 }
 
+/**
+ * Returns YES if self is contained anywhere inside the children or children of
+ * sub-nodes of the nodes contained inside the given array.
+ */
 - (BOOL)isDescendantOfOrOneOfNodes:(NSArray *)nodes
 {
 	// Returns YES if we are contained anywhere inside the array passed in, including inside sub-nodes.
 	for (KBBaseNode *node in nodes) {
 		if (node == self) {
-			return YES;  // Found ourself
+			return YES; // We found ourself.
 		}
-		// Check all sub-nodes
+		
+		// Check all the sub-nodes.
 		if (![node isLeaf]) {
 			if ([self isDescendantOfOrOneOfNodes:[node children]]) {
 				return YES;
@@ -319,10 +339,13 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		}
 	}
 	
-	// Didn't find self inside any of the nodes passed in
+	// Didn't find self inside any of the nodes passed in.
 	return NO;
 }
 
+/**
+ * Returns YES if any node in the array passed in is an ancestor of ours.
+ */
 - (BOOL)isDescendantOfNodes:(NSArray *)nodes
 {
 	// Returns YES if any node in the array passed in is an ancestor of ours.
@@ -330,7 +353,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		// Note that the only difference between this and isAnywhereInsideChildrenOfNodes: is that we don't check
 		// to see if we are actually one of the items in the array passed in, only if we are one of their descendants.
 		
-		// Check sub-nodes.
+		// Check all the sub-nodes.
 		if (node.isLeaf == NO) {
 			if ([self isDescendantOfOrOneOfNodes:[node children]]) {
 				return YES;
@@ -342,6 +365,9 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return NO;
 }
 
+/**
+ * Returns the index path of within the given array, useful for drag and drop.
+ */
 - (NSIndexPath *)indexPathInArray:(NSArray *)array
 {
 	NSIndexPath *indexPath = nil;
@@ -366,8 +392,9 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	
 	[reverseIndexes addObject:@(index)];
 	
-	// Now build the index path
-	for (NSNumber *indexNumber in [reverseIndexes reverseObjectEnumerator]) {
+	// Now build the index path.
+	NSEnumerator *re = [reverseIndexes reverseObjectEnumerator];
+	for (NSNumber *indexNumber in re) {
 		if (indexPath == nil) {
 			indexPath = [NSIndexPath indexPathWithIndex:[indexNumber unsignedIntegerValue]];
 		}
@@ -396,6 +423,9 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return mutableKeys;
 }
 
+/**
+ * Override this method to maintain support for archiving and copying.
+ */
 - (NSArray *)mutableKeys;
 {
 	return [KBBaseNode mutableKeys];
@@ -457,8 +487,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 	
 	for (NSString *key in [self mutableKeys]) {
-		// Convert all children to dictionaries too (note that we don't bother to look
-		// at the children for leaf nodes, which should just hold a reference to self).
+		// Convert all children to dictionaries.
 		if ([key isEqualToString:KBChildrenKey]) {
 			if (!_isLeaf) {
 				NSMutableArray *dictChildren = [NSMutableArray array];
@@ -506,7 +535,9 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return newNode;
 }
 
-// Subclasses must override this for any non-object values
+/**
+ * Subclasses must override this for any non-object values.
+ */
 - (void)setNilValueForKey:(NSString *)key
 {
 	if ([key isEqualToString:KBIsLeafKey]) {
