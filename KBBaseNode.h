@@ -91,10 +91,10 @@ extern NSString * const KBChildrenKey;
 
 /*	Returns YES if self is contained anywhere inside the children or children of sub-nodes of the nodes contained
 	inside the given array */
-- (BOOL)isDescendantOfOrOneOfNodes:(NSArray*)nodes;
+- (BOOL)isDescendantOfOrOneOfNodes:(NSArray *)nodes;
 
 /* Returns YES if self is a descendent of any of the nodes in the given array */
-- (BOOL)isDescendantOfNodes:(NSArray*)nodes;
+- (BOOL)isDescendantOfNodes:(NSArray *)nodes;
 
 /* Returns the index path of self within the given array - useful for dragging and dropping */
 - (NSIndexPath *)indexPathInArray:(NSArray *)array;
