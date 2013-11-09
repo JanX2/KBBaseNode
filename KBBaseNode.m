@@ -56,7 +56,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		[self setTitle:@"Untitled"];
 		[self setProperties:@{}];
 		[self setChildren:[NSMutableArray array]];
-		[self setLeaf:NO];							// Container by default
+		[self setLeaf:NO];							// Container by default.
 	}
 	
 	return self;
