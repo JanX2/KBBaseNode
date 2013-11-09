@@ -484,7 +484,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (id)initWithCoder:(NSCoder *)coder
 {
-	self = [self init];    // Make sure all the instance variables are  initialised
+	self = [self init];    // Make sure all the instance variables are initialised.
 	
 	for (NSString *key in [self mutableKeys]) {
 		[self setValue:[coder decodeObjectForKey:key] forKey:key];
