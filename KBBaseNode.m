@@ -408,9 +408,9 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	static NSArray *describableKeys = nil;
 	if (describableKeys == nil) {
 #if REMOVE_REDUNDANT_LEAF_KEY
-		NSMutableArray *describableKeys = [[[self mutableKeys] mutableCopy] autorelease];
+		NSMutableArray *describableKeys = [self.mutableKeys mutableCopy];
 		[describableKeys removeObject:KBIsLeafKey];
-		describableKeys = [[NSArray alloc] initWithArray:describableKeys];
+		describableKeys = @[describableKeys];
 #else
 		describableKeys = [self mutableKeys];
 #endif
