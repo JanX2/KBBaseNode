@@ -34,7 +34,6 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		return [NSString stringWithFormat:@"\"%@\"", descriptionString];
 	else
         return descriptionString;
-	
 }
 
 @implementation KBBaseNode
@@ -65,6 +64,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	{
 		[self setLeaf:YES];
 	}
+	
 	return self;
 }
 
@@ -142,7 +142,6 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	}
 	
 	return nodeDescription;
-	
 }
 
 
@@ -214,6 +213,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	if (self.isLeaf)
 		return 0;
+	
 	return [self.children count];
 }
 
@@ -238,6 +238,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 				return innerNode;
 		}
 	}
+	
 	return nil;
 }
 
@@ -362,6 +363,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	index = [array indexOfObjectIdenticalTo:doc];
 	if (index == NSNotFound)
 		return nil;
+	
 	[reverseIndexes addObject:@(index)];
 	
 	// Now build the index path
@@ -389,6 +391,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 						KBIsLeafKey,			// NOTE: isLeaf MUST come before children for initWithDictionary: to work properly!
 						KBChildrenKey];
 	}
+	
 	return mutableKeys;
 }
 
@@ -409,6 +412,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		describableKeys = [self mutableKeys];
 #endif
 	}
+	
 	return describableKeys;
 }
 
@@ -427,7 +431,9 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		if ([key isEqualToString:KBChildrenKey])
 		{
 			if ([dictionary[KBIsLeafKey] boolValue])
+			{
 				[self setChildren:@[self]];
+			}
 			else
 			{
 				// Get recursive!
@@ -442,7 +448,9 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 			}
 		}
 		else
+		{
 			[self setValue:dictionary[key] forKey:key];
+		}
 	}
 	
 	return self;
@@ -466,11 +474,14 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 				{
 					[dictChildren addObject:[child dictionaryRepresentation]];
 				}
+				
 				dictionary[key] = dictChildren;
 			}
 		}
 		else if ([self valueForKey:key])
+		{
 			dictionary[key] = [self valueForKey:key];
+		}
 	}
 	
 	return dictionary;
@@ -513,9 +524,13 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 - (void)setNilValueForKey:(NSString *)key
 {
 	if ([key isEqualToString:KBIsLeafKey])
+	{
 		isLeaf = NO;
+	}
 	else
+	{
 		[super setNilValueForKey:key];
+	}
 }
 
 
@@ -526,6 +541,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	if (self.isLeaf)
 		return;
+	
 	[self.children addObject:object];
 }
 
@@ -533,6 +549,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	if (self.isLeaf)
 		return;
+	
 	[self.children insertObject:object atIndex:index];
 }
 
@@ -540,6 +557,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	if (self.isLeaf)
 		return;
+	
 	[self.children removeObjectAtIndex:index];
 }
 
@@ -547,6 +565,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	if (self.isLeaf)
 		return nil;
+	
 	return (self.children)[index];
 }
 
@@ -554,6 +573,7 @@ NSString *KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 {
 	if (self.isLeaf)
 		return;
+	
 	(self.children)[index] = object;
 }
 @end
