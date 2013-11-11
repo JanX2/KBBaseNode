@@ -107,4 +107,11 @@ extern NSString * const KBChildrenKey;
 
 - (void)replaceObjectInChildrenAtIndex:(NSUInteger)index withObject:(KBBaseNode *)object;
 
+#pragma mark -
+#pragma mark Tree Enumeration Helper Methods
+
+- (KBBaseNode *)rootAncestor;
+- (KBBaseNode *)nextSibling;
+- (KBBaseNode *)nextNode;
+
 @end

@@ -622,4 +622,76 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	object.parent = self;
 	(_children)[index] = object;
 }
+
+
+#pragma mark -
+#pragma mark Tree Enumeration Helper Methods
+
+- (KBBaseNode *)rootAncestor;
+{
+	KBBaseNode *previousNode = nil;
+	KBBaseNode *currentNode = self;
+	
+	do {
+		previousNode = currentNode;
+		currentNode = currentNode.parent;
+	} while (currentNode != nil);
+	
+	return (previousNode == nil) ? self : previousNode;
+}
+
+- (KBBaseNode *)nextSibling;
+{
+	KBBaseNode *selfParent = [self parent];
+	if (selfParent == nil) {
+		return nil;
+	}
+	
+	NSArray *siblings = selfParent.children;
+	
+	NSUInteger selfIndex = [siblings indexOfObjectIdenticalTo:self];
+	if (selfIndex == NSNotFound) {
+		return nil;
+	}
+	
+	NSUInteger nextSiblingIndex = selfIndex + 1;
+	if (nextSiblingIndex == siblings.count) {
+		return nil;
+	}
+	
+	return siblings[nextSiblingIndex];
+}
+
+- (KBBaseNode *)nextNode;
+{
+	// If the node has children, then next node is the first child.
+	if (_isLeaf == NO) {
+		KBBaseNode *firstChild = (_children)[0];
+		if (firstChild != nil) {
+			return firstChild;
+		}
+	}
+	
+	// If the node has a next sibling, then next node is the next sibling.
+	KBBaseNode *nextSibling = [self nextSibling];
+	if (nextSibling != nil) {
+		return nextSibling;
+	}
+	
+	// There are no children, and no more siblings, so we need to get the next sibling of the parent.
+	// If that is nil, we need to get the next sibling of the grandparent, etc.
+	KBBaseNode *thisParent = [self parent];
+	while (thisParent != nil) {
+		KBBaseNode *parentNextSibling = [thisParent nextSibling];
+		if (parentNextSibling != nil) {
+			return parentNextSibling;
+		}
+		else {
+			thisParent = [thisParent parent];
+		}
+	}
+	
+	return nil;
+}
+
 @end
