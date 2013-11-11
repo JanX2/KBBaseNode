@@ -59,10 +59,10 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	self = [super init];
 	
 	if (self) {
-		[self setTitle:@"Untitled"];
-		[self setProperties:@{}];
-		[self setChildren:[NSMutableArray array]];
-		[self setLeaf:NO];							// Container by default.
+		_title = @"Untitled";
+		_properties = [@{} mutableCopy];
+		_children = [@[] mutableCopy];
+		_isLeaf = NO;				 			    // Container by default.
 	}
 	
 	return self;
@@ -73,7 +73,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	self = [self init];
 	
 	if (self) {
-		[self setLeaf:YES];
+		_isLeaf = YES;
 	}
 	
 	return self;
@@ -180,14 +180,14 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return _children;
 }
 
-- (void)setLeaf:(BOOL)flag
+- (void)setIsLeaf:(BOOL)flag
 {
-	_isLeaf = flag;
-	if (_isLeaf) {
-		[self setChildren:@[self]];
-	}
-	else {
-		[self setChildren:@[]];
+	if (_isLeaf != flag) {
+		_isLeaf = flag;
+		
+		if (_isLeaf) {
+			[_children removeAllObjects];
+		}
 	}
 }
 
@@ -462,7 +462,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		for (NSString *key in [self mutableKeys]) {
 			if ([key isEqualToString:KBChildrenKey]) {
 				if ([dictionary[KBIsLeafKey] boolValue]) {
-					[self setChildren:@[self]];
+					[self setChildren:@[]];
 				}
 				else {
 					// Get recursive!
