@@ -251,7 +251,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 }
 
 /**
- * Recursive method which searches children and children of all sub-nodes
+ * Recursive method which searches children and all their decendants.
  * to remove the given object.
  */
 - (void)removeObjectFromChildren:(id)obj
