@@ -37,6 +37,8 @@ extern NSString * const KBChildrenKey;
 @property (strong) NSArray *children;
 @property (assign) BOOL isLeaf;
 
+@property (nonatomic, weak) id parent;
+
 /*************************** Utility Methods ***************************/
 
 /* For sorting */
@@ -44,6 +46,12 @@ extern NSString * const KBChildrenKey;
 
 /* Returns the count of child nodes */
 - (NSUInteger)countOfChildren;
+
+
+/*************************** Performance Optmization Methods ***************************/
+
+// Use with care!
+- (void)replaceChildren:(NSMutableArray *)newChildren;
 
 /*************************** Archiving/Copying Support ***************************/
 
@@ -63,7 +71,7 @@ extern NSString * const KBChildrenKey;
 /*************************** Drag'n'Drop Convenience Methods ***************************/
 
 /*	Finds the parent of the receiver from the nodes contained in the array */
-- (id)parentFromArray:(NSArray *)array;
+- (id)parentFromArray:(NSArray *)array DEPRECATED_ATTRIBUTE; // Use the parent property instead!
 
 /*	Searches children and children of all sub-nodes to remove given object */
 - (void)removeObjectFromChildren:(id)obj;
@@ -88,14 +96,15 @@ extern NSString * const KBChildrenKey;
 - (NSIndexPath *)indexPathInArray:(NSArray *)array;
 
 /*************************** Node Modification Convenience Methods ***************************/
-- (void)addObject:(id)object;
 
-- (void)insertObject:(id)object inChildrenAtIndex:(NSUInteger)index;
+- (void)addObject:(KBBaseNode *)object;
+
+- (void)insertObject:(KBBaseNode *)object inChildrenAtIndex:(NSUInteger)index;
 
 - (void)removeObjectFromChildrenAtIndex:(NSUInteger)index;
 
 - (id)objectInChildrenAtIndex:(NSUInteger)index;
 
-- (void)replaceObjectInChildrenAtIndex:(NSUInteger)index withObject:(id)object;
+- (void)replaceObjectInChildrenAtIndex:(NSUInteger)index withObject:(KBBaseNode *)object;
 
 @end

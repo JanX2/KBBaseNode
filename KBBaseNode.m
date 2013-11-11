@@ -168,10 +168,33 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return _properties;
 }
 
+/**
+ * This will COPY newChildren
+ */
 - (void)setChildren:(NSArray *)newChildren
 {
 	if (_children != newChildren) {
 		_children = [[NSMutableArray alloc] initWithArray:newChildren copyItems:YES];
+	}
+	
+	for (KBBaseNode *child in _children) {
+		[child setParent:self];
+	}
+}
+
+/**
+ * This will RETAIN newChildren
+ */
+- (void)replaceChildren:(NSMutableArray *)newChildren;
+{
+	if (_children != newChildren) {
+		_children = newChildren;
+		
+		for (KBBaseNode *child in _children) {
+			[child setParent:self];
+		}
+		
+		_isLeaf = NO;
 	}
 }
 
@@ -224,26 +247,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (id)parentFromArray:(NSArray *)array
 {
-	for (KBBaseNode *node in array) {
-		if (node == self) {     // If we are in the root array, return nil
-			return nil;
-		}
-		
-		if ([[node children] containsObjectIdenticalTo:self]) {
-			// node is the parent of self.
-			return node;
-		}
-		
-		if (node.isLeaf == NO) {
-			// Go deeper.
-			id innerNode = [self parentFromArray:[node children]];
-			if (innerNode) {
-				return innerNode;
-			}
-		}
-	}
-	
-	return nil;
+	return _parent;
 }
 
 /**
@@ -366,36 +370,47 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 }
 
 /**
- * Returns the index path of within the given array, useful for drag and drop.
+ * Returns the index path of the reciever within the given root array. Useful for drag and drop.
+ * @param array root array of the node hierarchy
+ * @return the index path to the node or nil, if the node is not
  */
-- (NSIndexPath *)indexPathInArray:(NSArray *)array
+- (NSIndexPath *)indexPathInArray:(NSArray *)array;
 {
 	NSIndexPath *indexPath = nil;
 	NSMutableArray *reverseIndexes = [NSMutableArray array];
-	id parent, doc = self;
+	KBBaseNode *nodeParent;
+	KBBaseNode *node = self;
 	NSUInteger index;
 	
-	while ((parent = [doc parentFromArray:array])) {
-		index = [[parent children] indexOfObjectIdenticalTo:doc];
+	while ((nodeParent = node.parent) != nil) {
+		index = [nodeParent.children indexOfObjectIdenticalTo:node];
 		if (index == NSNotFound) {
+			// This would signify a logic error: the parent for a node doesn’t list the node as one of its children.
 			return nil;
 		}
 		
 		[reverseIndexes addObject:@(index)];
-		doc = parent;
+		node = nodeParent;
 	}
 	
-	// If parent is nil, we should just be in the parent array
-	index = [array indexOfObjectIdenticalTo:doc];
+	if (array != nil) {
+		// Even if parent is nil, we might be in the root array that was passed in.
+		index = [array indexOfObjectIdenticalTo:node];
+	}
+	else {
+		index = NSNotFound;
+	}
+	
 	if (index == NSNotFound) {
 		return nil;
 	}
-	
-	[reverseIndexes addObject:@(index)];
+	else {
+		[reverseIndexes addObject:@(index)];
+	}
 	
 	// Now build the index path.
-	NSEnumerator *re = [reverseIndexes reverseObjectEnumerator];
-	for (NSNumber *indexNumber in re) {
+	for (NSNumber *indexNumber in [reverseIndexes reverseObjectEnumerator])
+	{
 		if (indexPath == nil) {
 			indexPath = [NSIndexPath indexPathWithIndex:[indexNumber unsignedIntegerValue]];
 		}
@@ -470,7 +485,7 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 					NSMutableArray *newChildren = [NSMutableArray array];
 					
 					for (NSDictionary *childDict in dictChildren) {
-						id newNode = [[[self class] alloc] initWithDictionary:childDict];
+						KBBaseNode *newNode = [[[self class] alloc] initWithDictionary:childDict];
 						[newChildren addObject:newNode];
 					}
 					
@@ -488,6 +503,8 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 
 - (NSDictionary *)dictionaryRepresentation
 {
+	// NOTE: The parent is implicitly stored in the hierarchy.
+	
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 	
 	for (NSString *key in [self mutableKeys]) {
@@ -558,21 +575,23 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 #pragma mark -
 #pragma mark Node Modification Convenience Methods
 
-- (void)addObject:(id)object;
+- (void)addObject:(KBBaseNode *)object;
 {
 	if (_isLeaf) {
 		return;
 	}
 	
+	object.parent = self;
 	[_children addObject:object];
 }
 
-- (void)insertObject:(id)object inChildrenAtIndex:(NSUInteger)index;
+- (void)insertObject:(KBBaseNode *)object inChildrenAtIndex:(NSUInteger)index;
 {
 	if (_isLeaf) {
 		return;
 	}
 	
+	object.parent = self;
 	[_children insertObject:object atIndex:index];
 }
 
@@ -594,12 +613,13 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 	return (_children)[index];
 }
 
-- (void)replaceObjectInChildrenAtIndex:(NSUInteger)index withObject:(id)object;
+- (void)replaceObjectInChildrenAtIndex:(NSUInteger)index withObject:(KBBaseNode *)object;
 {
 	if (_isLeaf) {
 		return;
 	}
 	
+	object.parent = self;
 	(_children)[index] = object;
 }
 @end
