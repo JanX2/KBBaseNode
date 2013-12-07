@@ -188,6 +188,8 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 - (void)replaceChildren:(NSMutableArray *)newChildren;
 {
 	if (_children != newChildren) {
+		[self willChangeValueForKey:@"children"];
+		
 		_children = newChildren;
 		
 		for (KBBaseNode *child in _children) {
@@ -195,6 +197,8 @@ NSString * KBDescriptionForObject(id object, id locale, NSUInteger indentLevel)
 		}
 		
 		_isLeaf = NO;
+		
+		[self didChangeValueForKey:@"children"];
 	}
 }
 
